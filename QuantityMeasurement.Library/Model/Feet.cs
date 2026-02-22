@@ -9,15 +9,13 @@ namespace QuantityMeasurement.Library.Model
             Value = value;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (this == obj)
+            if (ReferenceEquals(this, obj))
                 return true;
 
-            if (obj == null || obj.GetType() != typeof(Feet))
+            if (obj is not Feet other)
                 return false;
-
-            Feet other = (Feet)obj;
 
             return Value.CompareTo(other.Value) == 0;
         }
