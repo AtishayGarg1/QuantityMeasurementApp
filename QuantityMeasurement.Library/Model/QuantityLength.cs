@@ -50,11 +50,24 @@ namespace QuantityMeasurement.Library.Model
             return new QuantityLength(convertedValue, targetUnit);
         }
 
-        // Static conversion API
+        // static method
         public static double Convert(double value, LengthUnit source, LengthUnit target)
         {
             var quantity = new QuantityLength(value, source);
             return quantity.ConvertTo(target).Value;
+        }
+
+        // Adds another length and returns result in current object's unit (instance method)
+        public QuantityLength Add(QuantityLength other)
+        {
+            if (other is null)
+                throw new ArgumentNullException(nameof(other));
+
+            double sumInBase = ConvertToBase() + other.ConvertToBase();
+
+            double resultValue = sumInBase / ConversionToFeet[Unit];
+
+            return new QuantityLength(resultValue, Unit);
         }
 
         // Equality comparison (cross-unit safe)
@@ -65,7 +78,6 @@ namespace QuantityMeasurement.Library.Model
 
             return Math.Abs(ConvertToBase() - other.ConvertToBase()) < TOLERANCE;
         }
-
         public override bool Equals(object? obj)
         {
             return Equals(obj as QuantityLength);
