@@ -7,16 +7,6 @@ namespace QuantityMeasurement.Library.Model
     {
         private const double TOLERANCE = 0.00001;
 
-        // Conversion factors relative to base unit (Feet)
-        private static readonly Dictionary<LengthUnit, double> ConversionToFeet =
-            new()
-            {
-                { LengthUnit.Feet, 1.0 },
-                { LengthUnit.Inch, 1.0 / 12.0 },
-                { LengthUnit.Yard, 3.0 },
-                { LengthUnit.Centimeters, 1.0 / 30.48 }
-            };
-
         public double Value { get; }
         public LengthUnit Unit { get; }
 
@@ -25,9 +15,6 @@ namespace QuantityMeasurement.Library.Model
             if (!double.IsFinite(value))
                 throw new ArgumentException("Value must be finite.");
 
-            if (!ConversionToFeet.ContainsKey(unit))
-                throw new ArgumentException("Unsupported unit.");
-
             Value = value;
             Unit = unit;
         }
@@ -35,22 +22,18 @@ namespace QuantityMeasurement.Library.Model
         // Convert current value to base unit (Feet)
         private double ConvertToBase()
         {
-            return Value * ConversionToFeet[Unit];
+            return Unit.ToBaseUnit(Value);
         }
 
         // Convert to target unit (instance method)
         public QuantityLength ConvertTo(LengthUnit targetUnit)
         {
-            if (!ConversionToFeet.ContainsKey(targetUnit))
-                throw new ArgumentException("Unsupported target unit.");
-
             double baseValue = ConvertToBase();
-            double convertedValue = baseValue / ConversionToFeet[targetUnit];
-
-            return new QuantityLength(convertedValue, targetUnit);
+            double converted = targetUnit.FromBaseUnit(baseValue);
+            return new QuantityLength(converted, targetUnit);
         }
 
-        // static method
+        // convert from source unit to target unit
         public static double Convert(double value, LengthUnit source, LengthUnit target)
         {
             var quantity = new QuantityLength(value, source);
@@ -63,11 +46,13 @@ namespace QuantityMeasurement.Library.Model
             if (other is null)
                 throw new ArgumentNullException(nameof(other));
 
-            double sumInBase = ConvertToBase() + other.ConvertToBase();
+            double sumBase =
+                ConvertToBase() + other.ConvertToBase();
 
-            double resultValue = sumInBase / ConversionToFeet[Unit];
+            double result =
+                Unit.FromBaseUnit(sumBase);
 
-            return new QuantityLength(resultValue, Unit);
+            return new QuantityLength(result, Unit);
         }
 
         // Adds 2 length and gives result in target unit
@@ -82,16 +67,13 @@ namespace QuantityMeasurement.Library.Model
             if (second is null)
                 throw new ArgumentNullException(nameof(second));
 
-            if (!ConversionToFeet.ContainsKey(targetUnit))
-                throw new ArgumentException("Unsupported target unit.");
-
-            double sumInBase =
+            double sumBase =
                 first.ConvertToBase() + second.ConvertToBase();
 
-            double resultValue =
-                sumInBase / ConversionToFeet[targetUnit];
+            double result =
+                targetUnit.FromBaseUnit(sumBase);
 
-            return new QuantityLength(resultValue, targetUnit);
+            return new QuantityLength(result, targetUnit);
         }
 
         // Equality comparison (cross-unit safe)
@@ -100,8 +82,11 @@ namespace QuantityMeasurement.Library.Model
             if (other is null)
                 return false;
 
-            return Math.Abs(ConvertToBase() - other.ConvertToBase()) < TOLERANCE;
+            return Math.Abs(
+                ConvertToBase() - other.ConvertToBase()
+            ) < TOLERANCE;
         }
+
         public override bool Equals(object? obj)
         {
             return Equals(obj as QuantityLength);
