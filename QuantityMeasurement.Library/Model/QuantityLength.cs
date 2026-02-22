@@ -57,7 +57,7 @@ namespace QuantityMeasurement.Library.Model
             return quantity.ConvertTo(target).Value;
         }
 
-        // Adds another length and returns result in current object's unit (instance method)
+        // Adds another length and returns result in current object's unit
         public QuantityLength Add(QuantityLength other)
         {
             if (other is null)
@@ -68,6 +68,30 @@ namespace QuantityMeasurement.Library.Model
             double resultValue = sumInBase / ConversionToFeet[Unit];
 
             return new QuantityLength(resultValue, Unit);
+        }
+
+        // Adds 2 length and gives result in target unit
+        public static QuantityLength Add(
+            QuantityLength first,
+            QuantityLength second,
+            LengthUnit targetUnit)
+        {
+            if (first is null)
+                throw new ArgumentNullException(nameof(first));
+
+            if (second is null)
+                throw new ArgumentNullException(nameof(second));
+
+            if (!ConversionToFeet.ContainsKey(targetUnit))
+                throw new ArgumentException("Unsupported target unit.");
+
+            double sumInBase =
+                first.ConvertToBase() + second.ConvertToBase();
+
+            double resultValue =
+                sumInBase / ConversionToFeet[targetUnit];
+
+            return new QuantityLength(resultValue, targetUnit);
         }
 
         // Equality comparison (cross-unit safe)

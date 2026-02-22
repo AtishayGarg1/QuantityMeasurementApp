@@ -95,18 +95,6 @@ namespace QuantityMeasurement.Tests
         }
 
         [TestMethod]
-        public void Addition_ShouldBeCommutative()
-        {
-            var a = new QuantityLength(1, LengthUnit.Feet);
-            var b = new QuantityLength(12, LengthUnit.Inch);
-
-            var result1 = a.Add(b);
-            var result2 = b.Add(a);
-
-            Assert.IsTrue(result1.Equals(result2));
-        }
-
-        [TestMethod]
         public void Add_Yard_And_Feet()
         {
             var yard = new QuantityLength(1, LengthUnit.Yard);
@@ -137,6 +125,48 @@ namespace QuantityMeasurement.Tests
             var result = a.Add(b);
 
             Assert.AreEqual(3, result.Value, TOLERANCE);
+        }
+
+        [TestMethod]
+        public void Add_WithTargetUnit_Yards()
+        {
+            var foot = new QuantityLength(1, LengthUnit.Feet);
+            var inches = new QuantityLength(12, LengthUnit.Inch);
+
+            var result = QuantityLength.Add(
+                foot,
+                inches,
+                LengthUnit.Yard);
+
+            Assert.AreEqual(2.0 / 3.0, result.Value, 0.00001);
+            Assert.AreEqual(LengthUnit.Yard, result.Unit);
+        }
+
+        [TestMethod]
+        public void Add_WithTargetUnit_Centimeters()
+        {
+            var yard = new QuantityLength(1, LengthUnit.Yard);
+            var feet = new QuantityLength(3, LengthUnit.Feet);
+
+            var result = QuantityLength.Add(
+                yard,
+                feet,
+                LengthUnit.Centimeters);
+
+            Assert.AreEqual(182.88, result.Value, 0.00001);
+            Assert.AreEqual(LengthUnit.Centimeters, result.Unit);
+        }
+
+        [TestMethod]
+        public void Add_WithTargetUnit_ShouldBeCommutative()
+        {
+            var a = new QuantityLength(1, LengthUnit.Feet);
+            var b = new QuantityLength(12, LengthUnit.Inch);
+
+            var result1 = QuantityLength.Add(a, b, LengthUnit.Feet);
+            var result2 = QuantityLength.Add(b, a, LengthUnit.Feet);
+
+            Assert.IsTrue(result1.Equals(result2));
         }
 
         
