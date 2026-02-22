@@ -18,6 +18,14 @@ namespace QuantityMeasurement.App
 
             var weightResult = weight1.Add(weight2);
             Console.WriteLine(weightResult);
+
+            var litre = new Quantity<VolumeUnit>(1, VolumeUnit.Litre);
+            var ml = new Quantity<VolumeUnit>(1000, VolumeUnit.Millilitre);
+            var gallon = new Quantity<VolumeUnit>(1, VolumeUnit.Gallon);
+
+            Console.WriteLine(litre.Equals(ml));
+            Console.WriteLine(gallon.ConvertTo(VolumeUnit.Litre));
+            Console.WriteLine(litre.Add(ml));
         }
     }
 }

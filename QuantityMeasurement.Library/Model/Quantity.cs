@@ -27,6 +27,7 @@ namespace QuantityMeasurement.Library.Model
             {
                 LengthUnit l => l.ConvertToBaseUnit(Value),
                 WeightUnit w => w.ConvertToBaseUnit(Value),
+                VolumeUnit v => v.ConvertToBaseUnit(Value),
                 _ => throw new InvalidOperationException("Unsupported category")
             };
         }
@@ -40,6 +41,7 @@ namespace QuantityMeasurement.Library.Model
             {
                 LengthUnit l => l.ConvertFromBaseUnit(baseValue),
                 WeightUnit w => w.ConvertFromBaseUnit(baseValue),
+                VolumeUnit v => v.ConvertFromBaseUnit(baseValue),
                 _ => throw new InvalidOperationException("Unsupported category")
             };
 
@@ -52,13 +54,13 @@ namespace QuantityMeasurement.Library.Model
             if (other is null)
                 throw new ArgumentNullException(nameof(other));
 
-            double sumBase =
-                ConvertToBase() + other.ConvertToBase();
+            double sumBase = ConvertToBase() + other.ConvertToBase();
 
             double result = Unit switch
             {
                 LengthUnit l => l.ConvertFromBaseUnit(sumBase),
                 WeightUnit w => w.ConvertFromBaseUnit(sumBase),
+                VolumeUnit v => v.ConvertFromBaseUnit(sumBase),
                 _ => throw new InvalidOperationException("Unsupported category")
             };
 
