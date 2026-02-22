@@ -5,7 +5,7 @@ namespace QuantityMeasurement.Library.Service
 {
     public class QuantityMeasurementService
     {
-        public bool CompareLength(Length first, Length second)
+        public bool CompareLength(QuantityLength first, QuantityLength second)
         {
             if (first == null || second == null)
                 throw new ArgumentNullException("Length cannot be null");
