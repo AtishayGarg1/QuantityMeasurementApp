@@ -23,6 +23,7 @@ namespace QuantityMeasurement.Library.Model
         // Convert current value to base unit
         private double ConvertToBase()
         {
+            
             return Unit switch
             {
                 LengthUnit l => l.ConvertToBaseUnit(Value),
@@ -65,6 +66,63 @@ namespace QuantityMeasurement.Library.Model
             };
 
             return new Quantity<U>(result, Unit);
+        }
+
+        // ================= SUBTRACTION =================
+
+        // Subtract and return result in this unit
+        public Quantity<U> Subtract(Quantity<U> other)
+        {
+            if (other is null)
+                throw new ArgumentNullException(nameof(other));
+
+            double diffBase = ConvertToBase() - other.ConvertToBase();
+
+            double result = Unit switch
+            {
+                LengthUnit l => l.ConvertFromBaseUnit(diffBase),
+                WeightUnit w => w.ConvertFromBaseUnit(diffBase),
+                VolumeUnit v => v.ConvertFromBaseUnit(diffBase),
+                _ => throw new InvalidOperationException("Unsupported category")
+            };
+
+            return new Quantity<U>(Math.Round(result, 2), Unit);
+        }
+
+        // Subtract and return result in specified target unit
+        public Quantity<U> Subtract(Quantity<U> other, U targetUnit)
+        {
+            if (other is null)
+                throw new ArgumentNullException(nameof(other));
+
+            double diffBase = ConvertToBase() - other.ConvertToBase();
+
+            double result = targetUnit switch
+            {
+                LengthUnit l => l.ConvertFromBaseUnit(diffBase),
+                WeightUnit w => w.ConvertFromBaseUnit(diffBase),
+                VolumeUnit v => v.ConvertFromBaseUnit(diffBase),
+                _ => throw new InvalidOperationException("Unsupported category")
+            };
+
+            return new Quantity<U>(Math.Round(result, 2), targetUnit);
+        }
+
+        // Divide and return result 
+
+        public double Divide(Quantity<U> other)
+        {
+            if (other is null)
+                throw new ArgumentNullException(nameof(other));
+
+            double divisor = other.ConvertToBase();
+
+            if (Math.Abs(divisor) < TOLERANCE)
+                throw new DivideByZeroException("Cannot divide by zero quantity.");
+
+            double result = ConvertToBase() / divisor;
+
+            return Math.Round(result, 2);
         }
 
         // Equality comparison (cross-unit safe)
