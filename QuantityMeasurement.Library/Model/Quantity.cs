@@ -20,16 +20,46 @@ namespace QuantityMeasurement.Library.Model
             Unit = unit;
         }
 
+
         // Convert current value to base unit
         private double ConvertToBase()
         {
-            
             return Unit switch
             {
                 LengthUnit l => l.ConvertToBaseUnit(Value),
                 WeightUnit w => w.ConvertToBaseUnit(Value),
                 VolumeUnit v => v.ConvertToBaseUnit(Value),
                 _ => throw new InvalidOperationException("Unsupported category")
+            };
+        }
+
+        // ================= VALIDATION HELPER =================
+
+        private void ValidateArithmeticOperands(Quantity<U> other)
+        {
+            if (other is null)
+                throw new ArgumentNullException(nameof(other));
+
+            if (!double.IsFinite(other.Value))
+                throw new ArgumentException("Operand value must be finite.");
+        }
+
+        // Centralized Arethmatic
+
+        private double PerformBaseArithmetic(Quantity<U> other, ArithmeticOperation operation)
+        {
+            ValidateArithmeticOperands(other);
+            double a = ConvertToBase();
+            double b = other.ConvertToBase();
+
+            return operation switch
+            {
+                ArithmeticOperation.Add => a + b,
+                ArithmeticOperation.Subtract => a - b,
+                ArithmeticOperation.Divide => Math.Abs(b) < TOLERANCE
+                    ? throw new DivideByZeroException("Cannot divide by zero quantity.")
+                    : a / b,
+                _ => throw new InvalidOperationException("Unsupported operation")
             };
         }
 
@@ -52,10 +82,7 @@ namespace QuantityMeasurement.Library.Model
         // Adds another length and returns result in current object's unit
         public Quantity<U> Add(Quantity<U> other)
         {
-            if (other is null)
-                throw new ArgumentNullException(nameof(other));
-
-            double sumBase = ConvertToBase() + other.ConvertToBase();
+            double sumBase = PerformBaseArithmetic(other, ArithmeticOperation.Add);
 
             double result = Unit switch
             {
@@ -68,15 +95,10 @@ namespace QuantityMeasurement.Library.Model
             return new Quantity<U>(result, Unit);
         }
 
-        // ================= SUBTRACTION =================
-
         // Subtract and return result in this unit
         public Quantity<U> Subtract(Quantity<U> other)
         {
-            if (other is null)
-                throw new ArgumentNullException(nameof(other));
-
-            double diffBase = ConvertToBase() - other.ConvertToBase();
+            double diffBase = PerformBaseArithmetic(other, ArithmeticOperation.Subtract);
 
             double result = Unit switch
             {
@@ -92,10 +114,7 @@ namespace QuantityMeasurement.Library.Model
         // Subtract and return result in specified target unit
         public Quantity<U> Subtract(Quantity<U> other, U targetUnit)
         {
-            if (other is null)
-                throw new ArgumentNullException(nameof(other));
-
-            double diffBase = ConvertToBase() - other.ConvertToBase();
+            double diffBase = PerformBaseArithmetic(other, ArithmeticOperation.Subtract);
 
             double result = targetUnit switch
             {
@@ -109,19 +128,9 @@ namespace QuantityMeasurement.Library.Model
         }
 
         // Divide and return result 
-
         public double Divide(Quantity<U> other)
         {
-            if (other is null)
-                throw new ArgumentNullException(nameof(other));
-
-            double divisor = other.ConvertToBase();
-
-            if (Math.Abs(divisor) < TOLERANCE)
-                throw new DivideByZeroException("Cannot divide by zero quantity.");
-
-            double result = ConvertToBase() / divisor;
-
+            double result = PerformBaseArithmetic(other, ArithmeticOperation.Divide);
             return Math.Round(result, 2);
         }
 
@@ -131,9 +140,7 @@ namespace QuantityMeasurement.Library.Model
             if (other is null)
                 return false;
 
-            return Math.Abs(
-                ConvertToBase() - other.ConvertToBase()
-            ) < TOLERANCE;
+            return Math.Abs( ConvertToBase() - other.ConvertToBase() ) < TOLERANCE;
         }
 
         public override bool Equals(object? obj)
