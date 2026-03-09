@@ -33,22 +33,27 @@ namespace QuantityMeasurement.Library.Model
             };
         }
 
-        // ================= VALIDATION HELPER =================
+        // VALIDATION HELPER 
 
-        private void ValidateArithmeticOperands(Quantity<U> other)
+        private void ValidateArithmeticOperands(Quantity<U> other, ArithmeticOperation operation)
         {
             if (other is null)
                 throw new ArgumentNullException(nameof(other));
 
             if (!double.IsFinite(other.Value))
                 throw new ArgumentException("Operand value must be finite.");
+
+             // UC14: prevent arithmetic on temperature
+            if (Unit is TemperatureUnit)
+                throw new NotSupportedException(
+                    $"Operation '{operation}' is not supported for Temperature measurements.");
         }
 
         // Centralized Arethmatic
 
         private double PerformBaseArithmetic(Quantity<U> other, ArithmeticOperation operation)
         {
-            ValidateArithmeticOperands(other);
+            ValidateArithmeticOperands(other, operation);
             double a = ConvertToBase();
             double b = other.ConvertToBase();
 

@@ -9,7 +9,6 @@ namespace QuantityMeasurement.Library.Model
         Yard,
         Centimeters
     }
-
     public static class LengthUnitExtensions
     {
         public static double ConvertToBaseUnit(this LengthUnit unit, double value)
