@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,5 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\QuantityMeasurementService\QuantityMeasurementService.csproj" />
     <ProjectReference Include="..\QuantityMeasurementModel\QuantityMeasurementModel.csproj" />
+    <ProjectReference Include="..\QuantityMeasurementRepository\QuantityMeasurementRepository.csproj" />
   </ItemGroup>
 </Project>

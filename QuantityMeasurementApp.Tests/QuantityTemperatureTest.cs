@@ -12,7 +12,7 @@ namespace QuantityMeasurementApp.Tests
         [SetUp]
         public void Setup()
         {
-            _service = new QuantityMeasurementServices();
+            _service = new QuantityMeasurementServices(new MockRepository());
         }
 
         // Comparison & Equality Tests 

@@ -1,12 +1,16 @@
 using System.Collections.Generic;
-using QuantityMeasurementModel; 
+using QuantityMeasurementModel;
+
 namespace QuantityMeasurementService
 {
+    // Converts length units to and from a base unit (inches)
     public class LengthConverter : IMeasurable<LengthUnit>
     {
-        public static readonly LengthConverter Instance = new();
+        // Singleton instance for shared use across the application
+        public static readonly LengthConverter Instance = new LengthConverter();
 
-        private readonly Dictionary<LengthUnit, double> _toInches = new()
+        // Dictionary mapping each length unit to its equivalent in inches
+        private readonly Dictionary<LengthUnit, double> _toInches = new Dictionary<LengthUnit, double>
         {
             { LengthUnit.INCH, 1.0 },
             { LengthUnit.FEET, 12.0 },
@@ -14,7 +18,16 @@ namespace QuantityMeasurementService
             { LengthUnit.CENTIMETRE, 0.39370078740157477 }
         };
 
-        public double ToBaseUnit(LengthUnit unit, double value) => value * _toInches[unit];
-        public double FromBaseUnit(LengthUnit unit, double baseValue) => baseValue / _toInches[unit];
+        // Converts a value from the given unit to the base unit (inches)
+        public double ToBaseUnit(LengthUnit unit, double value)
+        {
+            return value * _toInches[unit];
+        }
+
+        // Converts a base unit value (inches) to the given target unit
+        public double FromBaseUnit(LengthUnit unit, double baseValue)
+        {
+            return baseValue / _toInches[unit];
+        }
     }
 }
