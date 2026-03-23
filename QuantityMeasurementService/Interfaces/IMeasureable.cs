@@ -1,8 +1,9 @@
 namespace QuantityMeasurementService
 {
-    public interface IMeasurable<TUnit> where TUnit : Enum
+    public interface IMeasurable
     {
-        double ToBaseUnit(TUnit unit, double value);
-        double FromBaseUnit(TUnit unit, double baseValue);
+        string MeasurementCategory { get; }
+        double ToBaseUnit(string unit, double value);
+        double FromBaseUnit(string unit, double baseValue);
     }
 }

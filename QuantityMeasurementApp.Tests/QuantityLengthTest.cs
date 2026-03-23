@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using QuantityMeasurementModel;   
-using QuantityMeasurementService; 
+using QuantityMeasurementModel;
+using QuantityMeasurementService;
 
 namespace QuantityMeasurementApp.Tests
 {
@@ -9,14 +9,12 @@ namespace QuantityMeasurementApp.Tests
     {
         private IQuantityMeasurementService _service;
 
-        // Runs once before every single test to ensure a fresh Service
         [SetUp]
         public void Setup()
         {
             _service = new QuantityMeasurementServices(new MockRepository());
         }
 
-        // Comparison Tests 
         [Test]
         public void Compare_SameValuesInDifferentUnits_ReturnsTrue()
         {
@@ -34,10 +32,9 @@ namespace QuantityMeasurementApp.Tests
 
             Assert.That(response.IsSuccess, Is.True);
             Assert.That(response.IsComparison, Is.True);
-            Assert.That(response.AreEqual, Is.True); 
+            Assert.That(response.AreEqual, Is.True);
         }
 
-        // Arithmetic Tests 
         [Test]
         public void Add_OneFootAndTwelveInches_ReturnsTwoFeet()
         {
@@ -56,7 +53,7 @@ namespace QuantityMeasurementApp.Tests
 
             Assert.That(response.IsSuccess, Is.True);
             Assert.That(response.CalculatedValue, Is.EqualTo(2.0).Within(1e-6));
-            Assert.That(response.FormattedMessage, Is.EqualTo("1 FEET + 12 INCH = 2 FEET")); 
+            Assert.That(response.FormattedMessage, Is.EqualTo("1 FEET + 12 INCH = 2 FEET"));
         }
 
         [Test]
@@ -79,7 +76,6 @@ namespace QuantityMeasurementApp.Tests
             Assert.That(response.CalculatedValue, Is.EqualTo(9.5).Within(1e-6));
         }
 
-        // Validation Tests 
         [TestCase(MeasurementAction.Add)]
         [TestCase(MeasurementAction.Subtract)]
         [TestCase(MeasurementAction.Divide)]
@@ -90,7 +86,7 @@ namespace QuantityMeasurementApp.Tests
                 MeasurementCategory = "Length",
                 OperationType = op,
                 MeasurementValue1 = 1.0,
-                MeasurementUnit1 = "NOT_A_REAL_UNIT", 
+                MeasurementUnit1 = "NOT_A_REAL_UNIT",
                 MeasurementValue2 = 12.0,
                 MeasurementUnit2 = "INCH",
                 TargetMeasurementUnit = "FEET"

@@ -1,5 +1,6 @@
 namespace QuantityMeasurementModel
 {
+    // API response DTO
     public class MeasurementResponseDTO
     {
         public bool IsSuccess { get; set; }
@@ -10,4 +11,3 @@ namespace QuantityMeasurementModel
         public string FormattedMessage { get; set; }
     }
 }
-

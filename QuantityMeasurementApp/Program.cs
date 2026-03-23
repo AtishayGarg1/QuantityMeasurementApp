@@ -1,58 +1,72 @@
-using System;
-using QuantityMeasurementService;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using QuantityMeasurementApp.Middleware;
+using QuantityMeasurementRepository;
+using QuantityMeasurementRepository.Interfaces;
 using QuantityMeasurementRepository.Repositories;
+using QuantityMeasurementService;
 
-namespace QuantityMeasurementApp
+var builder = WebApplication.CreateBuilder(args);
+
+// Core services
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
 {
-    // Entry point of the Quantity Measurement Application
-    // Configures the repository (cache or database) and starts the controller
-    internal class Program
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Select Repository Mode:");
-            Console.WriteLine("1. Cache (In-Memory)");
-            Console.WriteLine("2. Database (SQL Server)");
-            Console.Write("Enter choice: ");
+        Title = "Quantity Measurement API",
+        Version = "v1"
+    });
+});
 
-            // Read user selection for storage mode
-            string input = Console.ReadLine();
-            int repositoryChoice;
-            bool parsed = int.TryParse(input, out repositoryChoice);
+builder.Services.AddHealthChecks();
+builder.Services.AddCors(opts =>
+{
+    opts.AddPolicy("AllowAll", policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
+});
 
-            if (!parsed)
-            {
-                Console.WriteLine("Invalid input. Defaulting to Cache mode.");
-                repositoryChoice = 1;
-            }
-
-            // Declare the repository interface reference
-            QuantityMeasurementRepository.Interfaces.IQuantityMeasurementRepository repository;
-
-            // Choose between cache and database repository based on user input
-            if (repositoryChoice == 2)
-            {
-                // Set up SQL Server connection string for database persistence
-                string connectionString = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=QuantityMeasurementDB;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-                repository = new QuantityMeasurementDatabaseRepository(connectionString);
-                Console.WriteLine("Using Database Repository (SQL Server).\n");
-            }
-            else
-            {
-                // Use in-memory cache repository for lightweight storage
-                repository = new QuantityMeasurementCacheRepository();
-                Console.WriteLine("Using Cache Repository (In-Memory).\n");
-            }
-
-            // Create the service layer with the selected repository
-            IQuantityMeasurementService appService = new QuantityMeasurementServices(repository);
-
-            // Create the controller and initialize the application
-            QuantityMeasurementController applicationController = new QuantityMeasurementController(appService);
-            applicationController.InitializeApplication();
-
-            Console.WriteLine("\nPress any key to exit...");
-            Console.ReadKey();
-        }
-    }
+// Database Configuration
+string dbProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
+if (dbProvider == "SqlServer")
+{
+    builder.Services.AddDbContext<MeasurementDbContext>(opts => 
+        opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
+else
+{
+    builder.Services.AddDbContext<MeasurementDbContext>(opts => 
+        opts.UseInMemoryDatabase("QuantityMeasurementDb"));
+}
+
+// DI
+builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
+builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementServices>();
+
+var app = builder.Build();
+
+// Middleware
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quantity Measurement API v1");
+    c.RoutePrefix = string.Empty;
+});
+
+app.UseCors("AllowAll");
+app.UseAuthorization();
+app.MapControllers();
+app.MapHealthChecks("/health");
+
+// Seed Database
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<MeasurementDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
+app.Run();

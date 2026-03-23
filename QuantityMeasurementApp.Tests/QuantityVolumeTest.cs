@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using QuantityMeasurementModel;   
-using QuantityMeasurementService; 
+using QuantityMeasurementModel;
+using QuantityMeasurementService;
 
 namespace QuantityMeasurementApp.Tests
 {
@@ -16,7 +16,6 @@ namespace QuantityMeasurementApp.Tests
             _service = new QuantityMeasurementServices(new MockRepository());
         }
 
-        // Comparison Tests
         [Test]
         public void Compare_LitreAndMillilitre_SameMagnitude_ReturnsTrue()
         {
@@ -55,7 +54,6 @@ namespace QuantityMeasurementApp.Tests
             Assert.That(response.AreEqual, Is.True);
         }
 
-        // Arithmetic Tests 
         [Test]
         public void Add_LitreAndMillilitre_ReturnsSumInLitres()
         {
@@ -112,7 +110,6 @@ namespace QuantityMeasurementApp.Tests
             Assert.That(double.IsInfinity(response.CalculatedValue), Is.True);
         }
 
-        // Validation Logic
         [Test]
         public void Validate_NegativeVolume_ReturnsFailedDtoWithError()
         {
@@ -120,7 +117,7 @@ namespace QuantityMeasurementApp.Tests
             {
                 MeasurementCategory = "Volume",
                 OperationType = MeasurementAction.Add,
-                MeasurementValue1 = -5.0, // Invalid negative value
+                MeasurementValue1 = -5.0,
                 MeasurementUnit1 = "LITRE",
                 MeasurementValue2 = 2.0,
                 MeasurementUnit2 = "LITRE",

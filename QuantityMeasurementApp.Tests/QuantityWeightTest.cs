@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using QuantityMeasurementModel;   
-using QuantityMeasurementService; 
+using QuantityMeasurementModel;
+using QuantityMeasurementService;
 
 namespace QuantityMeasurementApp.Tests
 {
@@ -16,7 +16,6 @@ namespace QuantityMeasurementApp.Tests
             _service = new QuantityMeasurementServices(new MockRepository());
         }
 
-        // Comparison Tests 
         [Test]
         public void Compare_KilogramsAndGrams_SameMagnitude_ReturnsTrue()
         {
@@ -53,7 +52,6 @@ namespace QuantityMeasurementApp.Tests
             Assert.That(response.AreEqual, Is.True);
         }
 
-        // Arithmetic Tests 
         [Test]
         public void Add_KilogramAndGrams_ReturnsCorrectSumInKilograms()
         {
@@ -110,7 +108,6 @@ namespace QuantityMeasurementApp.Tests
             Assert.That(response.CalculatedValue, Is.EqualTo(1.0).Within(Epsilon));
         }
 
-        // Validation Logic
         [Test]
         public void Validate_MissingOrInvalidUnit_ReturnsFailedDtoWithError()
         {

@@ -1,40 +1,33 @@
 using System;
 using System.Collections.Generic;
-using QuantityMeasurementModel;
 
 namespace QuantityMeasurementService
 {
-    // Converts temperature units to and from a base unit (Celsius)
-    // Uses a multiplier and offset approach for linear conversion
-    public class TemperatureConverter : IMeasurable<TemperatureUnit>
+    public class TemperatureConverter : IMeasurable
     {
-        // Singleton instance for shared use across the application
         public static readonly TemperatureConverter Instance = new TemperatureConverter();
 
-        // Dictionary mapping each temperature unit to its multiplier and offset for Celsius conversion
-        private readonly Dictionary<TemperatureUnit, double[]> _toCelsius = new Dictionary<TemperatureUnit, double[]>
+        public string MeasurementCategory => "Temperature";
+
+        private readonly Dictionary<string, double[]> _toCelsius = new Dictionary<string, double[]>(StringComparer.OrdinalIgnoreCase)
         {
-            { TemperatureUnit.CELSIUS,    new double[] { 1.0, 0.0 } },
-            { TemperatureUnit.KELVIN,     new double[] { 1.0, -273.15 } },
-            { TemperatureUnit.FAHRENHEIT, new double[] { 5.0 / 9.0, -160.0 / 9.0 } }
+            { "CELSIUS",    new double[] { 1.0, 0.0 } },
+            { "KELVIN",     new double[] { 1.0, -273.15 } },
+            { "FAHRENHEIT", new double[] { 5.0 / 9.0, -160.0 / 9.0 } }
         };
 
-        // Converts a value from the given unit to the base unit (Celsius)
-        public double ToBaseUnit(TemperatureUnit unit, double value)
+        public double ToBaseUnit(string unit, double value)
         {
+            if (!_toCelsius.ContainsKey(unit)) throw new ArgumentException("Invalid unit provided.");
             double[] factors = _toCelsius[unit];
-            double multiplier = factors[0];
-            double offset = factors[1];
-            return (value * multiplier) + offset;
+            return (value * factors[0]) + factors[1];
         }
 
-        // Converts a base unit value (Celsius) to the given target unit
-        public double FromBaseUnit(TemperatureUnit unit, double baseValue)
+        public double FromBaseUnit(string unit, double baseValue)
         {
+            if (!_toCelsius.ContainsKey(unit)) throw new ArgumentException("Invalid target unit.");
             double[] factors = _toCelsius[unit];
-            double multiplier = factors[0];
-            double offset = factors[1];
-            return (baseValue - offset) / multiplier;
+            return (baseValue - factors[1]) / factors[0];
         }
     }
 }

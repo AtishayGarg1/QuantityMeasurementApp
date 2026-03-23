@@ -1,32 +1,31 @@
+using System;
 using System.Collections.Generic;
-using QuantityMeasurementModel;
 
 namespace QuantityMeasurementService
 {
-    // Converts length units to and from a base unit (inches)
-    public class LengthConverter : IMeasurable<LengthUnit>
+    public class LengthConverter : IMeasurable
     {
-        // Singleton instance for shared use across the application
         public static readonly LengthConverter Instance = new LengthConverter();
 
-        // Dictionary mapping each length unit to its equivalent in inches
-        private readonly Dictionary<LengthUnit, double> _toInches = new Dictionary<LengthUnit, double>
+        public string MeasurementCategory => "Length";
+
+        private readonly Dictionary<string, double> _toInches = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
         {
-            { LengthUnit.INCH, 1.0 },
-            { LengthUnit.FEET, 12.0 },
-            { LengthUnit.YARD, 36.0 },
-            { LengthUnit.CENTIMETRE, 0.39370078740157477 }
+            { "INCH", 1.0 },
+            { "FEET", 12.0 },
+            { "YARD", 36.0 },
+            { "CENTIMETRE", 0.39370078740157477 }
         };
 
-        // Converts a value from the given unit to the base unit (inches)
-        public double ToBaseUnit(LengthUnit unit, double value)
+        public double ToBaseUnit(string unit, double value)
         {
+            if (!_toInches.ContainsKey(unit)) throw new ArgumentException("Invalid unit provided.");
             return value * _toInches[unit];
         }
 
-        // Converts a base unit value (inches) to the given target unit
-        public double FromBaseUnit(LengthUnit unit, double baseValue)
+        public double FromBaseUnit(string unit, double baseValue)
         {
+            if (!_toInches.ContainsKey(unit)) throw new ArgumentException("Invalid target unit.");
             return baseValue / _toInches[unit];
         }
     }

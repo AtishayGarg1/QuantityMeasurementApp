@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using QuantityMeasurementModel;   
-using QuantityMeasurementService; 
+using QuantityMeasurementModel;
+using QuantityMeasurementService;
 
 namespace QuantityMeasurementApp.Tests
 {
@@ -15,7 +15,6 @@ namespace QuantityMeasurementApp.Tests
             _service = new QuantityMeasurementServices(new MockRepository());
         }
 
-        // Comparison & Equality Tests 
         [Test]
         public void Compare_CelsiusAndFahrenheit_FreezingPoint_ReturnsTrue()
         {
@@ -75,6 +74,7 @@ namespace QuantityMeasurementApp.Tests
             Assert.That(response.IsComparison, Is.True);
             Assert.That(response.AreEqual, Is.True);
         }
+
         [TestCase(MeasurementAction.Add)]
         [TestCase(MeasurementAction.Subtract)]
         [TestCase(MeasurementAction.Divide)]
