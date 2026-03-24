@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace QuantityMeasurementService
+namespace QuantityMeasurementService.Core
 {
     public class LengthConverter : IMeasurable
     {

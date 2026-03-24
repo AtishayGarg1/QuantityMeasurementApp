@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using QuantityMeasurementModel;
 using QuantityMeasurementModel.Entities;
-using QuantityMeasurementService;
+using QuantityMeasurementService.Core;
 
 namespace QuantityMeasurementApp.Controllers
 {

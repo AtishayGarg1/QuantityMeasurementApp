@@ -6,7 +6,7 @@ using QuantityMeasurementApp.Middleware;
 using QuantityMeasurementRepository;
 using QuantityMeasurementRepository.Interfaces;
 using QuantityMeasurementRepository.Repositories;
-using QuantityMeasurementService;
+using QuantityMeasurementService.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +43,7 @@ else
 
 // DI
 builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
-builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementServices>();
+builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService.Core.QuantityMeasurementService>();
 
 var app = builder.Build();
 

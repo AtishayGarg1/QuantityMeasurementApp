@@ -2,7 +2,7 @@ using QuantityMeasurementModel;
 using QuantityMeasurementModel.Entities;
 using System.Collections.Generic;
 
-namespace QuantityMeasurementService
+namespace QuantityMeasurementService.Core
 {
     public interface IQuantityMeasurementService
     {

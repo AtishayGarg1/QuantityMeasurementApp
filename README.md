@@ -18,7 +18,7 @@ This is the entry point that spins up the web server.
 
 ### B. `QuantityMeasurementService` (Business Logic Layer)
 This is the "brain" of the application where all the calculations take place.
-- **`QuantityMeasurementServices.cs`**: The main service orchestrator. It receives data from the App layer, validates numbers (e.g., stopping infinity or negatives), figures out whether to compare or calculate, triggers the specific converter, saves the history, and returns a formatted response.
+- **`QuantityMeasurementService.cs`**: The main service orchestrator. It receives data from the App layer, validates numbers (e.g., stopping infinity or negatives), figures out whether to compare or calculate, triggers the specific converter, saves the history, and returns a formatted response.
 - **Converters (`LengthConverter`, `VolumeConverter`, `WeightConverter`, `TemperatureConverter`)**: We stripped away overly-complicated generic constraints (`Quantity<TUnit>`). Your converters now cleanly map string names directly to base-unit conversion logic using ultra-fast dictionary lookups. Everything converts to a universal base (e.g., Length uses Inches, Volume uses Litres), calculates, and converts back out.
 
 ### C. `QuantityMeasurementRepository` (Data Access Layer)
