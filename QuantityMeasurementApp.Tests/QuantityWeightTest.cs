@@ -1,19 +1,19 @@
 using NUnit.Framework;
 using QuantityMeasurementModel;
-using QuantityMeasurementService.Core;
+using QuantityMeasurementService;
 
 namespace QuantityMeasurementApp.Tests
 {
     [TestFixture]
     public class QuantityMeasurementServiceWeightTests
     {
-        private IQuantityMeasurementService _service = null!;
+        private IQuantityMeasurementService _service;
         private const double Epsilon = 1e-6;
 
         [SetUp]
         public void Setup()
         {
-            _service = new QuantityMeasurementService.Core.QuantityMeasurementService(new MockRepository());
+            _service = new QuantityMeasurementServices(new MockRepository());
         }
 
         [Test]

@@ -1,4 +1,4 @@
-namespace QuantityMeasurementService.Core
+namespace QuantityMeasurementService
 {
     public interface IMeasurable
     {

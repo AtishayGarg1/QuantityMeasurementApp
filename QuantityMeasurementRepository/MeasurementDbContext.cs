@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QuantityMeasurementModel.Entities;
 
 namespace QuantityMeasurementRepository
 {
-    public class MeasurementDbContext : DbContext
+    public class MeasurementDbContext : IdentityDbContext<IdentityUser>
     {
         public MeasurementDbContext(DbContextOptions<MeasurementDbContext> options)
             : base(options)

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace QuantityMeasurementService.Core
+namespace QuantityMeasurementService
 {
     public class TemperatureConverter : IMeasurable
     {

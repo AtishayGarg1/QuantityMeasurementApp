@@ -1,12 +1,14 @@
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuantityMeasurementModel;
 using QuantityMeasurementModel.Entities;
-using QuantityMeasurementService.Core;
+using QuantityMeasurementService;
 
 namespace QuantityMeasurementApp.Controllers
 {
     // REST controller for measurement operations
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]

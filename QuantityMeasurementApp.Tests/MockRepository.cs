@@ -26,12 +26,12 @@ namespace QuantityMeasurementApp.Tests
 
         public MeasurementEntity GetMeasurementById(int id)
         {
-            return _store.FirstOrDefault(m => m.Id == id)!;
+            return _store.FirstOrDefault(m => m.Id == id);
         }
 
         public bool DeleteMeasurement(int id)
         {
-            MeasurementEntity? found = _store.FirstOrDefault(m => m.Id == id);
+            MeasurementEntity found = _store.FirstOrDefault(m => m.Id == id);
             if (found == null) return false;
             _store.Remove(found);
             return true;

@@ -1,18 +1,18 @@
 using NUnit.Framework;
 using QuantityMeasurementModel;
-using QuantityMeasurementService.Core;
+using QuantityMeasurementService;
 
 namespace QuantityMeasurementApp.Tests
 {
     [TestFixture]
     public class QuantityMeasurementServiceTemperatureTests
     {
-        private IQuantityMeasurementService _service = null!;
+        private IQuantityMeasurementService _service;
 
         [SetUp]
         public void Setup()
         {
-            _service = new QuantityMeasurementService.Core.QuantityMeasurementService(new MockRepository());
+            _service = new QuantityMeasurementServices(new MockRepository());
         }
 
         [Test]

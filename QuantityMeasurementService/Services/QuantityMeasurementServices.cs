@@ -4,14 +4,14 @@ using QuantityMeasurementModel;
 using QuantityMeasurementModel.Entities;
 using QuantityMeasurementRepository.Interfaces;
 
-namespace QuantityMeasurementService.Core
+namespace QuantityMeasurementService
 {
-    public class QuantityMeasurementService : IQuantityMeasurementService
+    public class QuantityMeasurementServices : IQuantityMeasurementService
     {
         private readonly IQuantityMeasurementRepository _repository;
         private readonly Dictionary<string, IMeasurable> _converters;
 
-        public QuantityMeasurementService(IQuantityMeasurementRepository repository)
+        public QuantityMeasurementServices(IQuantityMeasurementRepository repository)
         {
             _repository = repository;
             _converters = new Dictionary<string, IMeasurable>(StringComparer.OrdinalIgnoreCase)
