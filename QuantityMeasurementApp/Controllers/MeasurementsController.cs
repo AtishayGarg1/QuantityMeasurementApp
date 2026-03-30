@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuantityMeasurementModel;
@@ -21,39 +22,28 @@ namespace QuantityMeasurementApp.Controllers
             _service = service;
         }
 
-        // POST /api/measurements/calculate
         [HttpPost("calculate")]
-        public IActionResult Calculate([FromBody] MeasurementRequestDTO request)
+        public IActionResult RunCalculation([FromBody] MeasurementRequestDTO dto)
         {
             if (!ModelState.IsValid)
             {
-                return BuildValidationError();
+                var errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(ApiErrorResponse.Create(400, "Validation failed", errors));
             }
 
-            MeasurementResponseDTO result = _service.ProcessMeasurement(request);
-            if (!result.IsSuccess)
-            {
-                return BadRequest(ApiErrorResponse.Create(400, "Measurement failed", result.ErrorMessage));
-            }
-            return Ok(result);
+            var res = _service.ProcessMeasurement(dto);
+            return res.IsSuccess ? Ok(res) : BadRequest(ApiErrorResponse.Create(400, "Operation Failed", res.ErrorMessage));
         }
 
-        // POST /api/measurements/compare
         [HttpPost("compare")]
-        public IActionResult Compare([FromBody] MeasurementRequestDTO request)
+        public IActionResult DoComparison([FromBody] MeasurementRequestDTO req)
         {
-            if (!ModelState.IsValid)
-            {
-                return BuildValidationError();
-            }
+            if (!ModelState.IsValid) return BadRequest("Input is invalid.");
 
-            request.OperationType = MeasurementAction.Compare;
-            MeasurementResponseDTO result = _service.ProcessMeasurement(request);
+            req.OperationType = MeasurementAction.Compare;
+            var result = _service.ProcessMeasurement(req);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(ApiErrorResponse.Create(400, "Comparison failed", result.ErrorMessage));
-            }
+            if (!result.IsSuccess) return BadRequest(result.ErrorMessage);
             return Ok(result);
         }
 
@@ -123,18 +113,17 @@ namespace QuantityMeasurementApp.Controllers
             return BadRequest(ApiErrorResponse.Create(400, "Validation failed", errors));
         }
 
-        // Extract error messages from ModelState
         private List<string> GetModelErrors()
         {
-            List<string> errorList = new List<string>();
-            foreach (var entry in ModelState)
+            var msg = new List<string>();
+            foreach (var state in ModelState.Values)
             {
-                foreach (var error in entry.Value.Errors)
+                foreach (var err in state.Errors)
                 {
-                    errorList.Add(error.ErrorMessage);
+                    msg.Add(err.ErrorMessage);
                 }
             }
-            return errorList;
+            return msg;
         }
     }
 }

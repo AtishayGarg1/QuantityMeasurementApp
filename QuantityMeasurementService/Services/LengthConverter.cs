@@ -5,21 +5,22 @@ namespace QuantityMeasurementService
 {
     public class LengthConverter : IMeasurable
     {
-        public static readonly LengthConverter Instance = new LengthConverter();
-
         public string MeasurementCategory => "Length";
+        public static readonly LengthConverter Instance = new LengthConverter();
 
         private readonly Dictionary<string, double> _toInches = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
         {
             { "INCH", 1.0 },
             { "FEET", 12.0 },
             { "YARD", 36.0 },
-            { "CENTIMETRE", 0.39370078740157477 }
+            { "CENTIMETRE", 0.3937 } // Standard conversion factor
         };
 
         public double ToBaseUnit(string unit, double value)
         {
-            if (!_toInches.ContainsKey(unit)) throw new ArgumentException("Invalid unit provided.");
+            if (!_toInches.ContainsKey(unit)) 
+                throw new ArgumentException($"Unit '{unit}' not supported");
+                
             return value * _toInches[unit];
         }
 

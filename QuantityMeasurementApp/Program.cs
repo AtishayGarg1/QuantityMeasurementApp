@@ -15,9 +15,10 @@ using QuantityMeasurementService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Core services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHealthChecks();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -50,14 +51,13 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddHealthChecks();
 builder.Services.AddCors(opts =>
 {
     opts.AddPolicy("AllowAll", policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 });
 
-// Database Configuration
 string? dbProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
+
 if (dbProvider == "SqlServer")
 {
     builder.Services.AddDbContext<MeasurementDbContext>(opts => 
@@ -69,7 +69,6 @@ else
         opts.UseInMemoryDatabase("QuantityMeasurementDb"));
 }
 
-// DI
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<MeasurementDbContext>()
     .AddDefaultTokenProviders();
@@ -99,14 +98,15 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
 });
 
-// Respository & Service DI
-builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
+
 builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementServices>();
+builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
+
 
 var app = builder.Build();
 
-// Middleware
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -121,8 +121,8 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Seed/Migrate Database
 using (var scope = app.Services.CreateScope())
+
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<MeasurementDbContext>();
     dbContext.Database.Migrate();

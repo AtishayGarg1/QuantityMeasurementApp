@@ -17,9 +17,16 @@ namespace QuantityMeasurementRepository.Repositories
 
         public void SaveMeasurement(MeasurementEntity entity)
         {
-            SetTimestampIfDefault(entity);
             _dbContext.Measurements.Add(entity);
             _dbContext.SaveChanges();
+        }
+
+        public List<MeasurementEntity> GetByCategory(string category)
+        {
+            return _dbContext.Measurements
+                .Where(m => m.MeasurementCategory == category)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToList();
         }
 
         public List<MeasurementEntity> GetAllMeasurements()
@@ -29,37 +36,17 @@ namespace QuantityMeasurementRepository.Repositories
                 .ToList();
         }
 
-        public MeasurementEntity GetMeasurementById(int id)
-        {
-            return _dbContext.Measurements.Find(id);
-        }
+        public MeasurementEntity GetMeasurementById(int id) => _dbContext.Measurements.Find(id);
 
         public bool DeleteMeasurement(int id)
         {
-            MeasurementEntity entity = _dbContext.Measurements.Find(id);
-            if (entity == null)
-            {
-                return false;
-            }
-            _dbContext.Measurements.Remove(entity);
+            var target = _dbContext.Measurements.Find(id);
+            if (target == null) return false;
+
+            _dbContext.Measurements.Remove(target);
             _dbContext.SaveChanges();
             return true;
         }
-
-        public List<MeasurementEntity> GetByCategory(string category)
-        {
-            return _dbContext.Measurements
-                .Where(m => m.MeasurementCategory == category)
-                .OrderByDescending(m => m.CreatedAt)
-                .ToList();
-        }
-
-        private void SetTimestampIfDefault(MeasurementEntity entity)
-        {
-            if (entity.CreatedAt == default(DateTime))
-            {
-                entity.CreatedAt = DateTime.Now;
-            }
-        }
+    }
     }
 }

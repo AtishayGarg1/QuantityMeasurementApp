@@ -8,7 +8,7 @@ using QuantityMeasurementModel;
 
 namespace QuantityMeasurementApp.Middleware
 {
-    // Global exception handler
+    // Catch-all for measurement errors
     public class GlobalExceptionMiddleware
     {
         private readonly RequestDelegate _next;
@@ -28,25 +28,24 @@ namespace QuantityMeasurementApp.Middleware
             }
             catch (ArgumentException argEx)
             {
-                _logger.LogWarning(argEx, "Bad request argument");
-                await WriteErrorResponse(context, HttpStatusCode.BadRequest, "Invalid argument", argEx.Message);
+                _logger.LogWarning(argEx, "Invalid field in request");
+                await RespondWithError(context, HttpStatusCode.BadRequest, "Bad Request", argEx.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled server error");
-                await WriteErrorResponse(context, HttpStatusCode.InternalServerError, "Internal server error", ex.Message);
+                _logger.LogError(ex, "System failed to process request");
+                await RespondWithError(context, HttpStatusCode.InternalServerError, "Internal Server Error", "Something went wrong internally.");
             }
         }
 
-        // Write structured JSON error response
-        private async Task WriteErrorResponse(HttpContext context, HttpStatusCode code, string message, string detail)
+        private async Task RespondWithError(HttpContext context, HttpStatusCode code, string title, string details)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)code;
 
-            ApiErrorResponse error = ApiErrorResponse.Create((int)code, message, detail);
-            string json = JsonSerializer.Serialize(error);
-            await context.Response.WriteAsync(json);
+            var errorData = ApiErrorResponse.Create((int)code, title, details);
+            await context.Response.WriteAsync(JsonSerializer.Serialize(errorData));
         }
+    }
     }
 }

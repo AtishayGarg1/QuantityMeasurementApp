@@ -23,19 +23,19 @@ namespace QuantityMeasurementService
             };
         }
 
-        public void ValidateValue(double checkValue)
-        {
-            if (double.IsNegative(checkValue) || double.IsInfinity(checkValue))
-            {
-                throw new InvalidMeasurementException("The measurement value " + checkValue + " is invalid.");
-            }
-        }
-
         public MeasurementResponseDTO ProcessMeasurement(MeasurementRequestDTO request)
         {
-            MeasurementResponseDTO response = ExecuteMeasurement(request);
+            var response = ExecuteMeasurement(request);
             PersistResult(request, response);
             return response;
+        }
+
+        public void CheckValue(double val)
+        {
+            if (double.IsNegative(val) || double.IsInfinity(val))
+            {
+                throw new InvalidMeasurementException($"Value '{val}' is not valid for calculations.");
+            }
         }
 
         public List<MeasurementEntity> GetMeasurementHistory() => _repository.GetAllMeasurements();
@@ -47,8 +47,8 @@ namespace QuantityMeasurementService
         {
             try
             {
-                ValidateValue(request.MeasurementValue1);
-                ValidateValue(request.MeasurementValue2);
+                CheckValue(request.MeasurementValue1);
+                CheckValue(request.MeasurementValue2);
 
                 if (!_converters.TryGetValue(request.MeasurementCategory, out var converter))
                 {
@@ -70,10 +70,11 @@ namespace QuantityMeasurementService
 
         private MeasurementResponseDTO PerformComparison(MeasurementRequestDTO req, IMeasurable converter)
         {
-            double base1 = converter.ToBaseUnit(req.MeasurementUnit1, req.MeasurementValue1);
-            double base2 = converter.ToBaseUnit(req.MeasurementUnit2, req.MeasurementValue2);
+            var v1 = converter.ToBaseUnit(req.MeasurementUnit1, req.MeasurementValue1);
+            var v2 = converter.ToBaseUnit(req.MeasurementUnit2, req.MeasurementValue2);
             
-            bool areEqual = Math.Abs(base1 - base2) < 1e-6;
+            // Allow for small rounding drift
+            bool areEqual = Math.Abs(v1 - v2) < 0.00001; 
 
             return new MeasurementResponseDTO
             {
