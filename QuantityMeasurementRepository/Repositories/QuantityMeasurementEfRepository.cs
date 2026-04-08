@@ -48,5 +48,4 @@ namespace QuantityMeasurementRepository.Repositories
             return true;
         }
     }
-    }
 }

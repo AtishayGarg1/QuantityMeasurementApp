@@ -34,7 +34,7 @@ namespace QuantityMeasurementService
         {
             if (double.IsNegative(val) || double.IsInfinity(val))
             {
-                throw new InvalidMeasurementException($"Value '{val}' is not valid for calculations.");
+                throw new InvalidMeasurementException($"Value '{val}' is invalid for calculations.");
             }
         }
 
@@ -47,8 +47,15 @@ namespace QuantityMeasurementService
         {
             try
             {
-                CheckValue(request.MeasurementValue1);
-                CheckValue(request.MeasurementValue2);
+                if (!string.Equals(request.MeasurementCategory, "Temperature", StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckValue(request.MeasurementValue1);
+                    CheckValue(request.MeasurementValue2);
+                }
+                else if (double.IsInfinity(request.MeasurementValue1) || double.IsInfinity(request.MeasurementValue2))
+                {
+                    throw new InvalidMeasurementException("Infinite temperature values are invalid.");
+                }
 
                 if (!_converters.TryGetValue(request.MeasurementCategory, out var converter))
                 {

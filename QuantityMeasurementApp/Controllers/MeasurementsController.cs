@@ -22,6 +22,7 @@ namespace QuantityMeasurementApp.Controllers
             _service = service;
         }
 
+        [AllowAnonymous]
         [HttpPost("calculate")]
         public IActionResult RunCalculation([FromBody] MeasurementRequestDTO dto)
         {
@@ -35,6 +36,7 @@ namespace QuantityMeasurementApp.Controllers
             return res.IsSuccess ? Ok(res) : BadRequest(ApiErrorResponse.Create(400, "Operation Failed", res.ErrorMessage));
         }
 
+        [AllowAnonymous]
         [HttpPost("compare")]
         public IActionResult DoComparison([FromBody] MeasurementRequestDTO req)
         {
@@ -92,6 +94,7 @@ namespace QuantityMeasurementApp.Controllers
             return Ok(records);
         }
 
+        [AllowAnonymous]
         // GET /api/measurements/units
         [HttpGet("units")]
         public IActionResult GetSupportedUnits()
