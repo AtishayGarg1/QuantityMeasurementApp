@@ -47,15 +47,7 @@ namespace QuantityMeasurementService
         {
             try
             {
-                if (!string.Equals(request.MeasurementCategory, "Temperature", StringComparison.OrdinalIgnoreCase))
-                {
-                    CheckValue(request.MeasurementValue1);
-                    CheckValue(request.MeasurementValue2);
-                }
-                else if (double.IsInfinity(request.MeasurementValue1) || double.IsInfinity(request.MeasurementValue2))
-                {
-                    throw new InvalidMeasurementException("Infinite temperature values are invalid.");
-                }
+                // Selection of operation handled below with appropriate value checks
 
                 if (!_converters.TryGetValue(request.MeasurementCategory, out var converter))
                 {
@@ -64,9 +56,19 @@ namespace QuantityMeasurementService
 
                 if (request.OperationType == MeasurementAction.Compare)
                 {
+                    CheckValue(request.MeasurementValue1);
+                    CheckValue(request.MeasurementValue2);
                     return PerformComparison(request, converter);
                 }
 
+                if (request.OperationType == MeasurementAction.Convert)
+                {
+                    CheckValue(request.MeasurementValue1);
+                    return PerformConversion(request, converter);
+                }
+
+                CheckValue(request.MeasurementValue1);
+                CheckValue(request.MeasurementValue2);
                 return PerformArithmetic(request, converter);
             }
             catch (Exception ex)
@@ -77,6 +79,10 @@ namespace QuantityMeasurementService
 
         private MeasurementResponseDTO PerformComparison(MeasurementRequestDTO req, IMeasurable converter)
         {
+            if (string.IsNullOrEmpty(req.MeasurementUnit2))
+            {
+                 throw new ArgumentException("Second unit is required for comparison.");
+            }
             var v1 = converter.ToBaseUnit(req.MeasurementUnit1, req.MeasurementValue1);
             var v2 = converter.ToBaseUnit(req.MeasurementUnit2, req.MeasurementValue2);
             
@@ -91,11 +97,30 @@ namespace QuantityMeasurementService
             };
         }
 
+        private MeasurementResponseDTO PerformConversion(MeasurementRequestDTO req, IMeasurable converter)
+        {
+            double baseValue = converter.ToBaseUnit(req.MeasurementUnit1, req.MeasurementValue1);
+            double convertedResult = converter.FromBaseUnit(req.TargetMeasurementUnit, baseValue);
+
+            return new MeasurementResponseDTO
+            {
+                IsSuccess = true,
+                IsComparison = false,
+                CalculatedValue = convertedResult,
+                FormattedMessage = $"{req.MeasurementValue1} {req.MeasurementUnit1} = {convertedResult} {req.TargetMeasurementUnit}"
+            };
+        }
+
         private MeasurementResponseDTO PerformArithmetic(MeasurementRequestDTO req, IMeasurable converter)
         {
             if (req.MeasurementCategory.Equals("Temperature", StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidMeasurementException("Arithmetic operations (Add/Subtract/Divide) are not supported for Temperature.");
+            }
+
+            if (string.IsNullOrEmpty(req.MeasurementUnit2))
+            {
+                throw new ArgumentException("Second unit is required for arithmetic operations.");
             }
 
             double base1 = converter.ToBaseUnit(req.MeasurementUnit1, req.MeasurementValue1);
@@ -155,7 +180,7 @@ namespace QuantityMeasurementService
                     AreEqual = response.AreEqual,
                     CalculatedValue = response.CalculatedValue,
                     FormattedMessage = response.FormattedMessage ?? "",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
                 _repository.SaveMeasurement(entity);
             }

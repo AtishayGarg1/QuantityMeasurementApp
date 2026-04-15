@@ -22,6 +22,7 @@ namespace QuantityMeasurementRepository
             {
                 entity.ToTable("QuantityMeasurementHistory");
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired(false);
 
                 entity.Property(e => e.CreatedAt)
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
