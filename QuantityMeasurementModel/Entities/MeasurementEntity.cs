@@ -16,6 +16,8 @@ namespace QuantityMeasurementModel.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        public string UserId { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         [MaxLength(50)]

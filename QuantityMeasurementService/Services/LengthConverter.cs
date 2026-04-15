@@ -19,7 +19,7 @@ namespace QuantityMeasurementService
         public double ToBaseUnit(string unit, double value)
         {
             if (!_toInches.ContainsKey(unit)) 
-                throw new ArgumentException($"Unit '{unit}' not supported");
+                throw new ArgumentException("Invalid unit provided.");
                 
             return value * _toInches[unit];
         }

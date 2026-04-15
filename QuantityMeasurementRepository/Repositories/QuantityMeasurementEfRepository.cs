@@ -21,32 +21,35 @@ namespace QuantityMeasurementRepository.Repositories
             _dbContext.SaveChanges();
         }
 
-        public List<MeasurementEntity> GetByCategory(string category)
+        public List<MeasurementEntity> GetByCategory(string category, string userId)
         {
             return _dbContext.Measurements
-                .Where(m => m.MeasurementCategory == category)
+                .Where(m => m.MeasurementCategory == category && (m.UserId == userId || m.UserId == null))
                 .OrderByDescending(x => x.CreatedAt)
                 .ToList();
         }
 
-        public List<MeasurementEntity> GetAllMeasurements()
+        public List<MeasurementEntity> GetAllMeasurements(string userId)
         {
             return _dbContext.Measurements
+                .Where(m => m.UserId == userId || m.UserId == null)
                 .OrderByDescending(m => m.CreatedAt)
                 .ToList();
         }
 
-        public MeasurementEntity GetMeasurementById(int id) => _dbContext.Measurements.Find(id);
-
-        public bool DeleteMeasurement(int id)
+        public MeasurementEntity GetMeasurementById(int id, string userId)
         {
-            var target = _dbContext.Measurements.Find(id);
+             return _dbContext.Measurements.FirstOrDefault(m => m.Id == id && m.UserId == userId);
+        }
+
+        public bool DeleteMeasurement(int id, string userId)
+        {
+            var target = _dbContext.Measurements.FirstOrDefault(m => m.Id == id && m.UserId == userId);
             if (target == null) return false;
 
             _dbContext.Measurements.Remove(target);
             _dbContext.SaveChanges();
             return true;
         }
-    }
     }
 }

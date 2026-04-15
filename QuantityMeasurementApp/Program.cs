@@ -61,7 +61,7 @@ string? dbProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
 if (dbProvider == "SqlServer")
 {
     builder.Services.AddDbContext<MeasurementDbContext>(opts => 
-        opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 else
 {

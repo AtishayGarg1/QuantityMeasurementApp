@@ -24,7 +24,7 @@ namespace QuantityMeasurementRepository
                 entity.HasKey(e => e.Id);
 
                 entity.Property(e => e.CreatedAt)
-                    .HasDefaultValueSql("GETDATE()");
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.MeasurementCategory).HasMaxLength(50);
                 entity.Property(e => e.OperationType).HasMaxLength(50);

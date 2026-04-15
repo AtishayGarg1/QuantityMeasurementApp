@@ -6,10 +6,10 @@ namespace QuantityMeasurementService
 {
     public interface IQuantityMeasurementService
     {
-        MeasurementResponseDTO ProcessMeasurement(MeasurementRequestDTO request);
-        List<MeasurementEntity> GetMeasurementHistory();
-        MeasurementEntity GetMeasurementById(int id);
-        bool DeleteMeasurement(int id);
-        List<MeasurementEntity> GetMeasurementsByCategory(string category);
+        MeasurementResponseDTO ProcessMeasurement(MeasurementRequestDTO request, string userId);
+        List<MeasurementEntity> GetMeasurementHistory(string userId);
+        MeasurementEntity GetMeasurementById(int id, string userId);
+        bool DeleteMeasurement(int id, string userId);
+        List<MeasurementEntity> GetMeasurementsByCategory(string category, string userId);
     }
 }

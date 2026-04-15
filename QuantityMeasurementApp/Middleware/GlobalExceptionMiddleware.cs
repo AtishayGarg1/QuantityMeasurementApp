@@ -47,5 +47,5 @@ namespace QuantityMeasurementApp.Middleware
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorData));
         }
     }
-    }
 }
+

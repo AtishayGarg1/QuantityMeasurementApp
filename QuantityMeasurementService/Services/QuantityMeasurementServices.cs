@@ -23,10 +23,10 @@ namespace QuantityMeasurementService
             };
         }
 
-        public MeasurementResponseDTO ProcessMeasurement(MeasurementRequestDTO request)
+        public MeasurementResponseDTO ProcessMeasurement(MeasurementRequestDTO request, string userId)
         {
             var response = ExecuteMeasurement(request);
-            PersistResult(request, response);
+            PersistResult(request, response, userId);
             return response;
         }
 
@@ -34,21 +34,28 @@ namespace QuantityMeasurementService
         {
             if (double.IsNegative(val) || double.IsInfinity(val))
             {
-                throw new InvalidMeasurementException($"Value '{val}' is not valid for calculations.");
+                throw new InvalidMeasurementException($"Value '{val}' is invalid for calculations.");
             }
         }
 
-        public List<MeasurementEntity> GetMeasurementHistory() => _repository.GetAllMeasurements();
-        public MeasurementEntity GetMeasurementById(int id) => _repository.GetMeasurementById(id);
-        public bool DeleteMeasurement(int id) => _repository.DeleteMeasurement(id);
-        public List<MeasurementEntity> GetMeasurementsByCategory(string category) => _repository.GetByCategory(category);
+        public List<MeasurementEntity> GetMeasurementHistory(string userId) => _repository.GetAllMeasurements(userId);
+        public MeasurementEntity GetMeasurementById(int id, string userId) => _repository.GetMeasurementById(id, userId);
+        public bool DeleteMeasurement(int id, string userId) => _repository.DeleteMeasurement(id, userId);
+        public List<MeasurementEntity> GetMeasurementsByCategory(string category, string userId) => _repository.GetByCategory(category, userId);
 
         private MeasurementResponseDTO ExecuteMeasurement(MeasurementRequestDTO request)
         {
             try
             {
-                CheckValue(request.MeasurementValue1);
-                CheckValue(request.MeasurementValue2);
+                if (!string.Equals(request.MeasurementCategory, "Temperature", StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckValue(request.MeasurementValue1);
+                    CheckValue(request.MeasurementValue2);
+                }
+                else if (double.IsInfinity(request.MeasurementValue1) || double.IsInfinity(request.MeasurementValue2))
+                {
+                    throw new InvalidMeasurementException("Infinite temperature values are invalid.");
+                }
 
                 if (!_converters.TryGetValue(request.MeasurementCategory, out var converter))
                 {
@@ -128,12 +135,13 @@ namespace QuantityMeasurementService
             };
         }
 
-        private void PersistResult(MeasurementRequestDTO request, MeasurementResponseDTO response)
+        private void PersistResult(MeasurementRequestDTO request, MeasurementResponseDTO response, string userId)
         {
             try
             {
                 var entity = new MeasurementEntity
                 {
+                    UserId = userId,
                     MeasurementCategory = request.MeasurementCategory ?? "",
                     OperationType = request.OperationType.ToString(),
                     MeasurementUnit1 = request.MeasurementUnit1 ?? "",
