@@ -51,6 +51,20 @@ namespace QuantityMeasurementApp.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
+        [HttpPost("convert")]
+        public IActionResult DoConversion([FromBody] MeasurementRequestDTO req)
+        {
+            if (!ModelState.IsValid) return BadRequest("Input is invalid.");
+
+            req.OperationType = MeasurementAction.Convert;
+            var userId = GetUserId();
+            var result = _service.ProcessMeasurement(req, userId);
+
+            if (!result.IsSuccess) return BadRequest(result.ErrorMessage);
+            return Ok(result);
+        }
+
         // GET /api/measurements/history
         [HttpGet("history")]
         public IActionResult GetHistory()

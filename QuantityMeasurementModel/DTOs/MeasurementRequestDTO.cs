@@ -17,10 +17,8 @@ namespace QuantityMeasurementModel
         [Range(0, double.MaxValue, ErrorMessage = "Value1 must be non-negative")]
         public double MeasurementValue1 { get; set; }
 
-        [Required(ErrorMessage = "Second unit is required")]
-        public string MeasurementUnit2 { get; set; }
+        public string? MeasurementUnit2 { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Value2 must be non-negative")]
         public double MeasurementValue2 { get; set; }
 
         public string TargetMeasurementUnit { get; set; }
