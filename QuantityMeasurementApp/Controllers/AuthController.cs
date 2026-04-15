@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using QuantityMeasurementModel.DTOs;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
@@ -38,7 +39,10 @@ namespace QuantityMeasurementApp.Controllers
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(500, new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+            {
+                var errors = string.Join(" ", result.Errors.Select(e => e.Description));
+                return BadRequest(new { Status = "Error", Message = errors });
+            }
 
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
@@ -51,6 +55,7 @@ namespace QuantityMeasurementApp.Controllers
             {
                 var authClaims = new List<Claim>
                 {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };

@@ -32,7 +32,8 @@ namespace QuantityMeasurementApp.Controllers
                 return BadRequest(ApiErrorResponse.Create(400, "Validation failed", errors));
             }
 
-            var res = _service.ProcessMeasurement(dto);
+            var userId = GetUserId();
+            var res = _service.ProcessMeasurement(dto, userId);
             return res.IsSuccess ? Ok(res) : BadRequest(ApiErrorResponse.Create(400, "Operation Failed", res.ErrorMessage));
         }
 
@@ -43,7 +44,8 @@ namespace QuantityMeasurementApp.Controllers
             if (!ModelState.IsValid) return BadRequest("Input is invalid.");
 
             req.OperationType = MeasurementAction.Compare;
-            var result = _service.ProcessMeasurement(req);
+            var userId = GetUserId();
+            var result = _service.ProcessMeasurement(req, userId);
 
             if (!result.IsSuccess) return BadRequest(result.ErrorMessage);
             return Ok(result);
@@ -53,7 +55,8 @@ namespace QuantityMeasurementApp.Controllers
         [HttpGet("history")]
         public IActionResult GetHistory()
         {
-            List<MeasurementEntity> records = _service.GetMeasurementHistory();
+            var userId = GetUserId();
+            List<MeasurementEntity> records = _service.GetMeasurementHistory(userId);
             return Ok(records);
         }
 
@@ -66,7 +69,8 @@ namespace QuantityMeasurementApp.Controllers
         [HttpGet("history/{id}")]
         public IActionResult GetById(int id)
         {
-            MeasurementEntity entity = _service.GetMeasurementById(id);
+            var userId = GetUserId();
+            MeasurementEntity entity = _service.GetMeasurementById(id, userId);
             if (entity == null)
             {
                 return NotFound(ApiErrorResponse.Create(404, "Not found", "No measurement with ID " + id));
@@ -78,7 +82,8 @@ namespace QuantityMeasurementApp.Controllers
         [HttpDelete("history/{id}")]
         public IActionResult Delete(int id)
         {
-            bool deleted = _service.DeleteMeasurement(id);
+            var userId = GetUserId();
+            bool deleted = _service.DeleteMeasurement(id, userId);
             if (!deleted)
             {
                 return NotFound(ApiErrorResponse.Create(404, "Not found", "No measurement with ID " + id));
@@ -90,7 +95,8 @@ namespace QuantityMeasurementApp.Controllers
         [HttpGet("history/category/{category}")]
         public IActionResult GetByCategory(string category)
         {
-            List<MeasurementEntity> records = _service.GetMeasurementsByCategory(category);
+            var userId = GetUserId();
+            List<MeasurementEntity> records = _service.GetMeasurementsByCategory(category, userId);
             return Ok(records);
         }
 
@@ -127,6 +133,17 @@ namespace QuantityMeasurementApp.Controllers
                 }
             }
             return msg;
+        }
+
+        private string GetUserId()
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                    ?? User.FindFirst("sub")?.Value 
+                    ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+            }
+            return null;
         }
     }
 }

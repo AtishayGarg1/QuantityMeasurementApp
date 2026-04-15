@@ -23,10 +23,10 @@ namespace QuantityMeasurementService
             };
         }
 
-        public MeasurementResponseDTO ProcessMeasurement(MeasurementRequestDTO request)
+        public MeasurementResponseDTO ProcessMeasurement(MeasurementRequestDTO request, string userId)
         {
             var response = ExecuteMeasurement(request);
-            PersistResult(request, response);
+            PersistResult(request, response, userId);
             return response;
         }
 
@@ -38,10 +38,10 @@ namespace QuantityMeasurementService
             }
         }
 
-        public List<MeasurementEntity> GetMeasurementHistory() => _repository.GetAllMeasurements();
-        public MeasurementEntity GetMeasurementById(int id) => _repository.GetMeasurementById(id);
-        public bool DeleteMeasurement(int id) => _repository.DeleteMeasurement(id);
-        public List<MeasurementEntity> GetMeasurementsByCategory(string category) => _repository.GetByCategory(category);
+        public List<MeasurementEntity> GetMeasurementHistory(string userId) => _repository.GetAllMeasurements(userId);
+        public MeasurementEntity GetMeasurementById(int id, string userId) => _repository.GetMeasurementById(id, userId);
+        public bool DeleteMeasurement(int id, string userId) => _repository.DeleteMeasurement(id, userId);
+        public List<MeasurementEntity> GetMeasurementsByCategory(string category, string userId) => _repository.GetByCategory(category, userId);
 
         private MeasurementResponseDTO ExecuteMeasurement(MeasurementRequestDTO request)
         {
@@ -135,12 +135,13 @@ namespace QuantityMeasurementService
             };
         }
 
-        private void PersistResult(MeasurementRequestDTO request, MeasurementResponseDTO response)
+        private void PersistResult(MeasurementRequestDTO request, MeasurementResponseDTO response, string userId)
         {
             try
             {
                 var entity = new MeasurementEntity
                 {
+                    UserId = userId,
                     MeasurementCategory = request.MeasurementCategory ?? "",
                     OperationType = request.OperationType.ToString(),
                     MeasurementUnit1 = request.MeasurementUnit1 ?? "",
